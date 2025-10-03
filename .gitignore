@@ -1,0 +1,4 @@
+.idea/
+/env_data/mysql_credentials
+/droplet/.idea/
+/droplet/.venv/

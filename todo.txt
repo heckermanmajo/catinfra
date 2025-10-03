@@ -1,0 +1,7 @@
+- adda nav bar for the admin page
+- create users as admin
+- create communities as admin
+- add users to communities as admin
+- update config data
+- -> put a prompt example for the header data into the update page
+- display a news page

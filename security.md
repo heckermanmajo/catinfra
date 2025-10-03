@@ -1,0 +1,7 @@
+- csfr token
+- secure long passwords -> use generator
+- log all activities
+- limit login attempts
+- ask for a secret pass key if the admins want to change user credentials
+- password hash
+- ssl-crypt the access data in the database -> skool tokens, etc.

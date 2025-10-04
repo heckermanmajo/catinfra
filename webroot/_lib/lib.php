@@ -57,7 +57,7 @@
             $keys = array_keys($data);
             $placeholders = array_map(fn($k) => ":$k", $keys);
             $sql = "INSERT INTO `$table_name` (" . implode(", ", $keys) . ") VALUES (" . implode(", ", $placeholders) . ")";
-            print_r($sql);
+            #print_r($sql);
             $stmt = lib::db()->prepare($sql);
             $params = [];
             foreach ($data as $key => $value)
@@ -130,14 +130,14 @@
 
         static function i(string $name): int
         {
-            return (int)$_REQUEST[$name]
-                ?? throw new ValueError("Missing parameter: $name");
+            return (int)($_REQUEST[$name]
+                ?? throw new ValueError("Missing parameter: $name"));
         }
 
         static function s(string $name): string
         {
-            return (string)$_REQUEST[$name]
-                ?? throw new ValueError("Missing parameter: $name");
+            return (string)($_REQUEST[$name]
+                ?? throw new ValueError("Missing parameter: $name"));
         }
 
         static function idefault(string $name, int $default = 0): int
@@ -267,7 +267,7 @@
             return false;
         }
 
-        static function header_html(string $title = 'App', string $onload = ""): void
+        static function header_html(string $title = 'App', string $css = "",  string $onload = ""): void
         {
             ?>
             <!DOCTYPE html>
@@ -278,6 +278,7 @@
                 <link rel="stylesheet" href="/_lib/lib.css">
                 <script src="/_lib/lib.js" defer></script>
                 <?= $onload ?>
+                <?= $css ?>
                 <title><?php echo htmlspecialchars($title); ?></title>
             </head>
             <body>
@@ -292,5 +293,54 @@
             <?php
         }
 
+        static function format_ago(int $timestamp): string
+        {
+            # months, days, hours, minutes, seconds
+            $diff = time() - $timestamp;
+            $periods = ['second', 'minute', 'hour', 'day', 'month', 'year', 'decade'];
+            $lengths = ['60', '60', '24', '7', '4.35', '12', '10'];
+            $now = time();
+            $difference = $now - $timestamp;
+            $tense = 'ago';
+            for ($j = 0; $difference >= $lengths[$j] && $j < count($lengths) - 1; $j++)
+            {
+                $difference /= $lengths[$j];
+            }
+            $difference = round($difference);
+            if ($difference != 1)
+            {
+                $periods[$j] .= 's';
+            }
+            return "$difference $periods[$j] $tense";
+        }
+
+        static function event_log(
+            string $event_type,
+            string $priority,
+            string $event_description,
+            string $event_data = "",
+            string $trace = "",
+            int $user_id = 0,
+            int $community_id = 0
+        )
+        {
+            $allowed_priorities = ['info', 'warning', 'error', 'critical'];
+            if (!in_array($priority, $allowed_priorities))
+            {
+                throw new ValueError("Invalid priority: $priority");
+            }
+            lib::insert(
+                "EventLog",
+                [
+                    "event_type" => $event_type,
+                    "priority" => $priority,
+                    "event_description" => $event_description,
+                    "event_data" => $event_data,
+                    "trace" => $trace,
+                    "user_id" => $user_id,
+                    "community_id" => $community_id,
+                ]
+            );
+        }
 
     }

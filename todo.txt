@@ -1,7 +1,14 @@
-- adda nav bar for the admin page
-- create users as admin
-- create communities as admin
-- add users to communities as admin
-- update config data
-- -> put a prompt example for the header data into the update page
-- display a news page
+
+- add event logs to all relavent actions
+- display event logs (global + community based)
+- search/filter event logs
+
+- trigger fetch actions
+- display fetched data
+
+- trigger simple analysis action
+
+- send email action
+
+- analysuis actions: wie specidänemark kaufe
+däce<hert man das mapping: 1:1 oder über alle oder über gewissen zeitraum?

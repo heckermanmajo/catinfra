@@ -1,5 +1,6 @@
 <?php
 
+    namespace _lib\actions;
     final class fetch_lib
     {
 

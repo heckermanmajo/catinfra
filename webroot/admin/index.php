@@ -1,6 +1,7 @@
 <?php
 
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
+    require_once "./admin_lib.php";
 
     if (!lib::is_logged_in())
     {
@@ -9,31 +10,45 @@
         exit();
     }
 
-    if(!lib::current_user_is_admin()){
+    if (!lib::current_user_is_admin())
+    {
         ob_clean();
         header("Location: /user");
         exit();
     }
 
+
+    if (lib::sdefault("action") == "create_community")
+    {
+        if (!lib::current_user_is_admin())
+        {
+            ob_clean();
+            header("Location: /user");
+            exit();
+        }
+    }
+
     lib::header_html();
 
+    admin_lib::main_admin_nav();
 ?>
+    <hr>
 
     <h4> ADMIN VIEW </h4>
 
     <ul>
-        <li> add user </li>
-        <li> Important events page -> news for admins </li>
-        <li> Search for user/community </li>
-        <li> edit user data </li>
-        <li> Trigger fetch </li>
-        <li> Search through fetched data </li>
-        <li> Search raw data </li>
-        <li> Download raw data as zip (different ways) </li>
-        <li> View event logs/search them </li>
-        <li> See and edit cron jobs; time strategy </li>
-        <li> see, search sent emails </li>
-        <li> Impersonate users </li>
+        <li> add user</li>
+        <li> Important events page -> news for admins</li>
+        <li> Search for user/community</li>
+        <li> edit user data</li>
+        <li> Trigger fetch</li>
+        <li> Search through fetched data</li>
+        <li> Search raw data</li>
+        <li> Download raw data as zip (different ways)</li>
+        <li> View event logs/search them</li>
+        <li> See and edit cron jobs; time strategy</li>
+        <li> see, search sent emails</li>
+        <li> Impersonate users</li>
     </ul>
 
 <?php

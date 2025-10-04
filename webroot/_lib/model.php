@@ -11,7 +11,6 @@
     $m[] = lib::string_column_sql($U, "status");
     $m[] = lib::string_column_sql($U, "skool_user_id");
     $m[] = lib::integer_column_sql($U, "is_admin");
-    $m[] = lib::integer_column_sql($U, "trust_score_calculated_at");
     $m[] = lib::string_column_sql($U, "SKOOL_AUTH_TOKEN");
     $m[] = lib::string_column_sql($U, "SKOOL_CLIENT_ID");
     $m[] = lib::string_column_sql($U, "SKOOL_GA");
@@ -29,7 +28,7 @@
     $m[] = lib::string_column_sql($C, "tenant_slug");
     $m[] = lib::string_column_sql($C, "tenant_name");
     $m[] = lib::string_column_sql($C, "skool_id");
-    $m[] = lib::string_column_sql($C, "Primary community");
+    $m[] = lib::string_column_sql($C, "primary_community");
     $m[] = lib::string_column_sql($C, "created_by_user_id");
     $m[] = lib::string_column_sql($C, "created_by_user_name");
 
@@ -41,27 +40,33 @@
 
     $RDP = "RawDataPage";
     $m[] = lib::table_creation_sql($RDP);
-    $m[] = lib::string_column_sql($RDP, "type");
+    $m[] = lib::string_column_sql($RDP, "page_type");
     $m[] = lib::string_column_sql($RDP, "related_skoolid"); # if this is a chat, of a user profile, etc.
     $m[] = lib::string_column_sql($RDP, "content");
-    $m[] = lib::string_column_sql($RDP, "trace_and_logs");
+    $m[] = lib::string_column_sql($RDP, "logs");
+    $m[] = lib::string_column_sql($RDP, "trace");
+    $m[] = lib::string_column_sql($RDP, "community_id");
     $m[] = lib::integer_column_sql($RDP, "success");
 
     $ARD = "AnalysisResultData";
     $m[] = lib::table_creation_sql($ARD);
-    $m[] = lib::string_column_sql($ARD, "type");
+    $m[] = lib::string_column_sql($ARD, "reault_type");
     $m[] = lib::string_column_sql($ARD, "source_file_name");
     $m[] = lib::string_column_sql($ARD, "content");
-    $m[] = lib::string_column_sql($ARD, "trace_and_logs");
+    $m[] = lib::string_column_sql($ARD, "logs");
+    $m[] = lib::string_column_sql($ARD, "trace");
+    $m[] = lib::string_column_sql($RDP, "community_id");
     $m[] = lib::integer_column_sql($ARD, "success");
 
     $EL = "EventLog";
     $m[] = lib::table_creation_sql($EL);
     $m[] = lib::integer_column_sql($EL, "user_id");
+    $m[] = lib::integer_column_sql($RDP, "community_id");
     $m[] = lib::string_column_sql($EL, "event_type");
-    $m[] = lib::string_column_sql($EL, "importance");
+    $m[] = lib::string_column_sql($EL, "priority");
     $m[] = lib::integer_column_sql($EL, "done");
     $m[] = lib::string_column_sql($EL, "event_description");
     $m[] = lib::string_column_sql($EL, "event_data");
+    $m[] = lib::string_column_sql($EL, "trace");
 
     return $m;

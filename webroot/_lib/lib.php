@@ -52,46 +52,131 @@
         /**
          * @throws Exception
          */
-        static function insert(string $table_name, array $data): int
+        static function insert(string $table_name, array $data, bool $create_event_log = true): int
         {
-            $keys = array_keys($data);
-            $placeholders = array_map(fn($k) => ":$k", $keys);
-            $sql = "INSERT INTO `$table_name` (" . implode(", ", $keys) . ") VALUES (" . implode(", ", $placeholders) . ")";
-            #print_r($sql);
-            $stmt = lib::db()->prepare($sql);
-            $params = [];
-            foreach ($data as $key => $value)
+            try
             {
-                $params[":$key"] = $value;
+                $keys = array_keys($data);
+                $placeholders = array_map(fn($k) => ":$k", $keys);
+                $sql = "INSERT INTO `$table_name` (" . implode(", ", $keys) . ") VALUES (" . implode(", ", $placeholders) . ")";
+                #print_r($sql);
+                $stmt = lib::db()->prepare($sql);
+                $params = [];
+                $data['created_at'] = time();
+                foreach ($data as $key => $value)
+                {
+                    $params[":$key"] = $value;
+                }
+                $stmt->execute($params);
+                $last_inserted_id = (int)lib::db()->lastInsertId();
+                if ($create_event_log)
+                {
+                    lib::insert(
+                        "EventLog",
+                        [
+                            "event_type" => "insert",
+                            "priority" => "info",
+                            "event_description" => "Insert",
+                            "user_id" => lib::current_user()["id"],
+                            "community_id" => $data["community_id"] ?? ($table_name == "Community" ? $last_inserted_id : 0),
+                            "event_data" => json_encode($data),
+                            "trace" => new Exception()->getTraceAsString(),
+                        ],
+                        create_event_log: false
+                    );
+                }
+                return $last_inserted_id;
             }
-            $stmt->execute($params);
-            return (int)lib::db()->lastInsertId();
+            catch (Throwable $e)
+            {
+                if ($create_event_log)
+                {
+                    lib::insert(
+                        "EventLog",
+                        [
+                            "event_type" => "insert_failed",
+                            "priority" => "info",
+                            "event_description" => "Insert failed: " . $e->getMessage(),
+                            "event_data" => json_encode($data),
+                            "trace" => $e->getMessage() . "\n" . $e->getTraceAsString(),
+                            "user_id" => lib::current_user()["id"],
+                            "community_id" => $data["community_id"] ?? 0
+                        ],
+                        create_event_log: false
+                    );
+                }
+                throw $e;
+            }
         }
+
 
         /**
          * @throws Exception
          */
-        static function update(string $table_name, array $data): bool
+        static function update(string $table_name, array $data, bool $create_event_log = false): bool
         {
-            if (!isset($data['id']))
+            try
             {
-                throw new InvalidArgumentException("Data must contain 'id' key for update");
+                if (!isset($data['id']))
+                {
+                    throw new InvalidArgumentException("Data must contain 'id' key for update");
+                }
+                $id = $data['id'];
+                unset($data['id']);
+                $set_clauses = [];
+                $data['updated_at'] = time();
+                foreach (array_keys($data) as $key)
+                {
+                    $set_clauses[] = "`$key` = :$key";
+                }
+                $sql = "UPDATE `$table_name` SET " . implode(", ", $set_clauses) . " WHERE id = :id";
+                $stmt = lib::db()->prepare($sql);
+                $params = [':id' => $id];
+                foreach ($data as $key => $value)
+                {
+                    $params[":$key"] = $value;
+                }
+                $result = $stmt->execute($params);
+                if ($result)
+                {
+                    lib::insert(
+                        "EventLog",
+                        [
+                            "event_type" => "update",
+                            "priority" => "info",
+                            "event_description" => "Update",
+                            "event_data" => json_encode($data),
+                            "trace" => new Exception()->getTraceAsString(),
+                            "user_id" => lib::current_user()["id"],
+                            "community_id" => $data["community_id"] ?? ($table_name == "Community" ? $id : 0),
+                            "created_at" => time(),
+                        ],
+                        create_event_log: false
+                    );
+                }
+                return $result;
             }
-            $id = $data['id'];
-            unset($data['id']);
-            $set_clauses = [];
-            foreach (array_keys($data) as $key)
+            catch (Throwable $e)
             {
-                $set_clauses[] = "`$key` = :$key";
+                if ($create_event_log)
+                {
+                    lib::insert(
+                        "EventLog",
+                        [
+                            "event_type" => "update_failed",
+                            "priority" => "info",
+                            "event_description" => "Update failed: " . $e->getMessage(),
+                            "event_data" => json_encode($data),
+                            "trace" => $e->getMessage() . "\n" . $e->getTraceAsString(),
+                            "user_id" => lib::current_user()["id"],
+                            "community_id"  => $data["community_id"] ?? ($table_name == "Community" ? $id : 0),
+                            "created_at" => time(),
+                        ],
+                        create_event_log: false
+                    );
+                }
+                throw $e;
             }
-            $sql = "UPDATE `$table_name` SET " . implode(", ", $set_clauses) . " WHERE id = :id";
-            $stmt = lib::db()->prepare($sql);
-            $params = [':id' => $id];
-            foreach ($data as $key => $value)
-            {
-                $params[":$key"] = $value;
-            }
-            return $stmt->execute($params);
         }
 
         /**
@@ -243,7 +328,7 @@
         {
             $db = lib::db();
             $model = require $_SERVER["DOCUMENT_ROOT"] . "/_lib/model.php";
-            foreach ($model  as $sql_statment)
+            foreach ($model as $sql_statment)
             {
                 try
                 {
@@ -292,7 +377,7 @@
             return false;
         }
 
-        static function header_html(string $title = 'App', string $css = "",  string $onload = ""): void
+        static function header_html(string $title = 'App', string $css = "", string $onload = ""): void
         {
             ?>
             <!DOCTYPE html>
@@ -343,10 +428,10 @@
             string $event_type,
             string $priority,
             string $event_description,
-            array $event_data = [],
+            array  $event_data = [],
             string $trace = "",
-            int $user_id = 0,
-            int $community_id = 0
+            int    $user_id = 0,
+            int    $community_id = 0
         )
         {
             $allowed_priorities = ['info', 'warning', 'error', 'critical'];

@@ -108,9 +108,21 @@
         break;
 
     case "logs":
-        ?>
-        <h4>LOGS</h4>
-        <?php
+        $eventlogs = lib::select(
+            "SELECT * FROM EventLog WHERE community_id = :community_id ORDER BY created_at DESC",
+            ["community_id" => $id]
+        );
+        foreach ($eventlogs as $eventlog)
+        {
+            ?>
+            <article>
+                <pre>
+                    <?= json_encode($eventlog, JSON_PRETTY_PRINT) ?>
+                </pre>
+            </article>
+            <?php
+        }
+
         break;
 
     case "transform":

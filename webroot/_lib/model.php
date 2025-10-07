@@ -21,6 +21,7 @@
     $m[] = lib::string_column_sql($U, "SKOOL_AJS_ANON");
     $m[] = lib::string_column_sql($U, "SKOOL_WAF_COOKIE");
     $m[] = lib::string_column_sql($U, "SKOOL_WAF_HEADER");
+    $m[] = lib::string_column_sql($U, "auth_key");
 
     # one community represents one skool community
     $C = "Community";

@@ -113,7 +113,7 @@
         <?php
         break;
 
-    case "analysis":
+    case "transform":
         ?>
         <h4>ANALYSIS RESULTS</h4>
         <?php

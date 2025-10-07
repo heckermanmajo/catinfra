@@ -44,7 +44,7 @@
 
 ?>
     <header>
-        <a href="/admin/one_community.php?id=<?= $raw_data_page["community_id"] ?>p=raw">
+        <a href="/admin/one_community.php?id=<?= $raw_data_page["community_id"] ?>&p=raw">
             Back
         </a>
     </header>
@@ -67,7 +67,6 @@
             echo strlen($ziped);
             echo "<hr>";
             echo admin_lib::render_collapsible_list($content);
-            #print_r($content);
         ?>
 </pre>
 

@@ -50,7 +50,7 @@
 
     $ARD = "AnalysisResultData";
     $m[] = lib::table_creation_sql($ARD);
-    $m[] = lib::string_column_sql($ARD, "reault_type");
+    $m[] = lib::string_column_sql($ARD, "result_type");
     $m[] = lib::string_column_sql($ARD, "source_file_name");
     $m[] = lib::string_column_sql($ARD, "content");
     $m[] = lib::string_column_sql($ARD, "logs");
@@ -68,5 +68,16 @@
     $m[] = lib::string_column_sql($EL, "event_description");
     $m[] = lib::string_column_sql($EL, "event_data");
     $m[] = lib::string_column_sql($EL, "trace");
+
+    $SM = "SentMail";
+    $m[] = lib::table_creation_sql($SM);
+    $m[] = lib::integer_column_sql($SM, "user_id");
+    $m[] = lib::integer_column_sql($SM, "community_id");
+    $m[] = lib::string_column_sql($SM, "subject");
+    $m[] = lib::string_column_sql($SM, "body");
+    $m[] = lib::string_column_sql($SM, "warnings");
+    $m[] = lib::string_column_sql($SM, "trace");
+    $m[] = lib::integer_column_sql($ARD, "success");
+
 
     return $m;

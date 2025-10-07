@@ -1,7 +1,5 @@
 <?php
 
-
-
     function transform_test(int $community_id): array {
 
         $data = lib::select(
@@ -10,7 +8,10 @@
         );
 
         # get some data from it and return it
+        $about = $data["pageProps"]["currentGroup"]["metadata"]["lpDescription"];
 
-
+        return [
+            "about" => $about,
+        ];
 
     }

@@ -12,3 +12,7 @@
 
 - analysuis actions: wie specidänemark kaufe
 däce<hert man das mapping: 1:1 oder über alle oder über gewissen zeitraum?
+
+
+- email login token
+- all data in one place

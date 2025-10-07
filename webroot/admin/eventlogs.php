@@ -20,19 +20,37 @@
     lib::header_html();
     admin_lib::main_admin_nav();
 
-    $logs = lib::select(
-        "SELECT * FROM EventLog",
-        []
-    );
+    if (lib::sdefault("search") !== "")
+    {
+        $logs = lib::select(
+            "SELECT * FROM EventLog WHERE event_type LIKE :search OR event_data LIKE :search",
+            [
+                "search" => "%" . lib::s('search') . "%",
+            ]
+        );
+    }
+    else
+    {
+        $logs = lib::select(
+            "SELECT * FROM EventLog",
+            []
+        );
+    }
+
+?>
+    <form method="get">
+        <input type="text" name="search" placeholder="Search">
+        <input type="submit" value="Search">
+    </form>
+<?php
 
     foreach ($logs as $log)
     {
         ?>
-            <div>
-                <h4> <?= $log["event_name"] ?> </h4>
-                <p> <?= $log["event_data"] ?> </p>
-                <pre><?= json_encode(json_decode($log["event_data"]), JSON_PRETTY_PRINT) ?></pre>
-            </div>
+        <article>
+            <h4> <?= $log["event_type"] ?> </h4>
+            <pre><?= json_encode(json_decode($log["event_data"]), JSON_PRETTY_PRINT) ?></pre>
+        </article>
         <?php
     }
 

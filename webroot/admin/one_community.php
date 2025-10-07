@@ -37,6 +37,10 @@
             Add User to Community
         </a> &nbsp; | &nbsp;
 
+        <a href="/admin/kick_user_from_community.php?id=<?= $id ?>">
+            Kick User from Community
+        </a> &nbsp; | &nbsp;
+
         <a href="/admin/edit_community.php?id=<?= $id ?>">
             Update Community Data
         </a> &nbsp; | &nbsp;
@@ -77,7 +81,7 @@
             <li> Raw Fetched data</li>
             <?php
                 $raw_fetched_data_pages = lib::select(
-                    "SELECT created_at, page_type FROM RawDataPage 
+                    "SELECT id, created_at, page_type FROM RawDataPage 
                              WHERE community_id = :community_id",
                     ["community_id" => $id]
                 );
@@ -92,7 +96,9 @@
                 {
                     ?>
                     <li>
-                        <?= $page["created_at"] ?> - <?= $page["page_type"] ?>
+                        <a href="/admin/one_raw_data_page.php?id=<?= $page["id"] ?>">
+                            <?= $page["created_at"] ?> - <?= $page["page_type"] ?>
+                        </a>
                     </li>
                     <?php
                 }

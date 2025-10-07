@@ -1,6 +1,5 @@
 <?php
 
-    namespace _lib\actions;
     final class fetch_lib
     {
 
@@ -28,50 +27,44 @@
         static function perform_request_to_skool(
             array  $user,
             array  $community,
-            string $url
+            string $url,
+            string $kind = 'api'
         ): array
         {
+            self::log("Send request to URL: {$url}");
 
-            $get_headers
-                = function (
-                string  $kind,
-                ?string $community_name
-            ) use ($user, $community)
+            $get_headers = function (string $kind) use ($user, $community)
             {
-                $tenant_name = $community['tenent_name']
-                    ?? throw new ValueError("Missing tenant name");
-
-                $h = [
-                    "accept" => "application/json, text/plain, * /*",
-                    "accept-language" => "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
-                    "user-agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
-                    "origin" => "https://www.skool.com",
-                    "referer" => "https://www.skool.com/",
-                    "priority" => "u=1, i",
-                    "sec-ch-ua" => '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+                $headers = [
+                    "accept: application/json, text/plain, */*",
+                    "accept-language: de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+                    "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+                    "origin: https://www.skool.com",
+                    "referer: https://www.skool.com/",
+                    "priority: u=1, i",
+                    'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
                 ];
-                if ($kind == "nextjs")
+
+                if ($kind === "nextjs")
                 {
-                    $h["x-nextjs-data"] = "1";
+                    $headers[] = "x-nextjs-data: 1";
                 }
-                if ($community_name)
+                if ($kind === "api")
                 {
-                    if (!isset($community_name))
-                    {
-                        throw new ValueError("Community '{$community_name}' not found in tenant '{$tenant_name}'");
-                    }
+                    $headers[] = "content-type: application/json";
                 }
-                if ($kind == "api")
+                if ($user['SKOOL_WAF_HEADER'])
                 {
-                    $h["content-type"] = "application/json";
+                    $headers[] = "x-aws-waf-token: {$user['SKOOL_WAF_HEADER']}";
                 }
-                $h["x-aws-waf-token"] = $user['SKOOL_WAF_HEADER'];
-                $h["authorization"] = "Bearer {$user['SKOOL_AUTH_TOKEN']}";
-                return $h;
+                if ($user['SKOOL_AUTH_TOKEN'])
+                {
+                    $headers[] = "authorization: Bearer {$user['SKOOL_AUTH_TOKEN']}";
+                }
+                return $headers;
             };
 
-            $get_cookies
-                = function () use ($user, $community)
+            $get_cookies = function () use ($user)
             {
                 $cookies = [];
                 if ($user['SKOOL_AUTH_TOKEN'])
@@ -82,7 +75,6 @@
                 {
                     $cookies['client_id'] = $user['SKOOL_CLIENT_ID'];
                 }
-
                 if ($user['SKOOL_GA'])
                 {
                     $cookies['_ga'] = $user['SKOOL_GA'];
@@ -109,10 +101,9 @@
                     if (!str_starts_with($a, '"') || !str_ends_with($a, '"'))
                     {
                         $a = '"' . $a . '"';
-                        $cookies['ajs_anonymous_id'] = $a;
                     }
+                    $cookies['ajs_anonymous_id'] = $a;
                 }
-
                 if ($user['SKOOL_WAF_COOKIE'])
                 {
                     $cookies['aws-waf-token'] = $user['SKOOL_WAF_COOKIE'];
@@ -121,6 +112,23 @@
                 return $cookies;
             };
 
+            // Build cookie string
+            $cookie_string = [];
+            foreach ($get_cookies() as $key => $value)
+            {
+                if ($value)
+                {
+                    $cookie_string[] = "{$key}={$value}";
+                }
+            }
+
+            $header_data = implode("\r\n", $get_headers($kind));
+            echo "<pre>";
+            print_r($header_data);
+            print_r($cookie_string);
+            print_r($url);
+            echo "</pre>";
+            #exit;
 
             # perform request
             $ch = curl_init();
@@ -129,8 +137,8 @@
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $get_headers($community['kind'], $community['name']));
-            curl_setopt($ch, CURLOPT_COOKIE, http_build_query($get_cookies()));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $get_headers($kind));
+            curl_setopt($ch, CURLOPT_COOKIE, implode("; ", $cookie_string));
             $html = curl_exec($ch);
             $errno = curl_errno($ch);
             $err = curl_error($ch);
@@ -146,6 +154,8 @@
             {
                 throw new RuntimeException("[performRequestToSkool] Non-200 status: {$code} for {$url}");
             }
+
+            self::log($html);
 
             return json_decode($html, true, 512, JSON_THROW_ON_ERROR);
 
@@ -218,6 +228,30 @@
                 throw new RuntimeException("[resolveBuildId] buildId missing in __NEXT_DATA__ for {$url}");
             }
             return $buildId;
+        }
+
+        /**
+         * @throws Exception
+         */
+        static function insert_raw_page_data(
+            $page_type,
+            $related_skoolid,
+            $content,
+            $trace_and_logs,
+            $community_id,
+            $success
+        ): int
+        {
+            return lib::insert("RawDataPage", [
+                "page_type" => $page_type,
+                "related_skoolid" => $related_skoolid,
+                "content" => $content,
+                "logs" => $trace_and_logs["logs"] ?? "",
+                "trace" => $trace_and_logs["trace"] ?? "",
+                "community_id" => $community_id,
+                "success" => $success ? 1 : 0,
+                "created_at" => time(),
+            ]);
         }
 
     }

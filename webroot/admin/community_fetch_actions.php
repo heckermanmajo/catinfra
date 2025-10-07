@@ -2,6 +2,9 @@
 
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
     require_once "./admin_lib.php";
+    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/fetch_lib.php";
+    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/fetch/fetch_admin_metrics.php";
+    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/fetch/fetch_about_page.php";
 
     if (!lib::is_logged_in())
     {
@@ -17,30 +20,108 @@
         exit();
     }
 
-    function insert_raw_page_data(
-        $page_type,
-        $related_skoolid,
-        $content,
-        $trace_and_logs,
-        $community_id,
-        $success
-    ){}
 
     switch (lib::sdefault("action"))
     {
         case "fetch_about_page":
-            require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/fetch/fetch_about_page.php";
-            ob_start();
+
             try
             {
-                $data = fetch_about_page();
-            }catch (Throwable $t)
-            {
-                $message = $t->getMessage();
-                $trace = $t->getTraceAsString();
+                $id = lib::i("id");
+                $community = lib::select(
+                    "SELECT * FROM Community WHERE id = :id",
+                    ["id" => $id]
+                )[0] ?? throw new Exception("Community not found");
+
+                // Get admin user
+                $user_rel = lib::select(
+                    "SELECT * FROM UserCommunityRelation WHERE community_id = :community_id AND relation_type = 'admin'",
+                    ["community_id" => $id]
+                )[0] ?? throw new Exception("No admin user relation found for community");
+
+                $user = lib::select(
+                    "SELECT * FROM User WHERE id = :user_id",
+                    ["user_id" => $user_rel["user_id"]]
+                )[0] ?? throw new Exception("User not found");
+
+                ob_start();
+                $success = false;
+                $data = null;
+                $message = null;
+                $trace = null;
+
+                $data = fetch_about_page($user, $community);
+                $success = true;
+
+                $logs = ob_get_clean();
+
+                // Insert into RawDataPage
+                fetch_lib::insert_raw_page_data(
+                    "about_page",
+                    $community["skool_id"] ?? "",
+                    json_encode($data ?? ["error" => $message]),
+                    ["logs" => $logs, "trace" => $trace ?? ""],
+                    $community["id"],
+                    $success
+                );
             }
-            $logs = ob_get_clean();
-            # todo: insert data into raw page
+            catch (Throwable $t)
+            {
+                $FETCH_ABOUT_PAGE_ERROR = $t->getMessage();
+                $TRACE_ABOUT = $t->getTraceAsString();
+            }
+            break;
+
+        case "fetch_admin_metrics":
+
+            try
+            {
+                $id = lib::i("id");
+                $community = lib::select(
+                    "SELECT * FROM Community WHERE id = :id",
+                    ["id" => $id]
+                )[0] ?? throw new Exception("Community not found");
+
+                // Get admin user
+                $user_rel = lib::select(
+                    "SELECT * FROM UserCommunityRelation WHERE community_id = :community_id AND relation_type = 'admin'",
+                    ["community_id" => $id]
+                )[0] ?? throw new Exception("No admin user relation found for community");
+
+                $user = lib::select(
+                    "SELECT * FROM User WHERE id = :user_id",
+                    ["user_id" => $user_rel["user_id"]]
+                )[0] ?? throw new Exception("User not found");
+
+                $range_days = lib::sdefault("range_days", "30d");
+                $amt = lib::sdefault("amt", "monthly");
+
+                ob_start();
+                $success = false;
+                $data = null;
+                $message = null;
+                $trace = null;
+
+                $data = fetch_admin_metrics($user, $community, $range_days, $amt);
+                $success = true;
+
+                $logs = ob_get_clean();
+
+                // Insert into RawDataPage
+                fetch_lib::insert_raw_page_data(
+                    "admin_metrics",
+                    $community["skool_id"] ?? "",
+                    json_encode($data ?? ["error" => $message]),
+                    ["logs" => $logs, "trace" => $trace ?? ""],
+                    $community["id"],
+                    $success
+                );
+            }
+            catch (Throwable $t)
+            {
+                $FETCH_ADMIN_METRICS_ERROR = $t->getMessage();
+                $TRACE = $t->getTraceAsString();
+            }
             break;
     }
 
@@ -60,11 +141,42 @@
 
         ?>
         <pre><?= print_r($community, true) ?></pre>
-
+        <hr>
+        <h5> Fetch about page </h5>
         <form method="post">
+            <?php if (isset($FETCH_ABOUT_PAGE_ERROR)) { ?>
+                <div style="color: crimson">
+                    <?= $FETCH_ABOUT_PAGE_ERROR ?>
+                    <pre><?= $TRACE_ABOUT ?></pre>
+                </div>
+            <?php } ?>
             <input type="hidden" name="id" value="<?= $community["id"] ?>">
-            <button> Fetch About Page </button>
+            <input type="hidden" name="action" value="fetch_about_page">
+            <button> Fetch About Page</button>
         </form>
+
+        <hr>
+        <h5> Fetch admin page </h5>
+        <form method="post">
+            <?php if (isset($FETCH_ADMIN_METRICS_ERROR)) { ?>
+                <div style="color: crimson">
+                    <?= $FETCH_ADMIN_METRICS_ERROR ?>
+                    <pre><?= $TRACE ?></pre>
+                </div>
+            <?php } ?>
+            <input type="hidden" name="id" value="<?= $community["id"] ?>">
+            <input type="hidden" name="action" value="fetch_admin_metrics">
+            <label>
+                Range:
+                <input type="text" name="range_days" value="30d" placeholder="30d">
+            </label>
+            <label>
+                Amount Type:
+                <input type="text" name="amt" value="monthly" placeholder="monthly">
+            </label>
+            <button> Fetch Admin Metrics</button>
+        </form>
+        <hr>
 
         <?php
 

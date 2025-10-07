@@ -42,7 +42,7 @@
     $m[] = lib::table_creation_sql($RDP);
     $m[] = lib::string_column_sql($RDP, "page_type");
     $m[] = lib::string_column_sql($RDP, "related_skoolid"); # if this is a chat, of a user profile, etc.
-    $m[] = lib::string_column_sql($RDP, "content");
+    $m[] = lib::long_string_column_sql($RDP, "content");
     $m[] = lib::string_column_sql($RDP, "logs");
     $m[] = lib::string_column_sql($RDP, "trace");
     $m[] = lib::string_column_sql($RDP, "community_id");
@@ -61,7 +61,7 @@
     $EL = "EventLog";
     $m[] = lib::table_creation_sql($EL);
     $m[] = lib::integer_column_sql($EL, "user_id");
-    $m[] = lib::integer_column_sql($RDP, "community_id");
+    $m[] = lib::integer_column_sql($EL, "community_id");
     $m[] = lib::string_column_sql($EL, "event_type");
     $m[] = lib::string_column_sql($EL, "priority");
     $m[] = lib::integer_column_sql($EL, "done");

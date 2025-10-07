@@ -45,6 +45,16 @@
                 ]
             );
 
+            lib::event_log(
+                "COMMUNITY_UPDATED",
+                "info",
+                "Community data were updated.",
+                [
+                    "community_id" => $id,
+                    "updated_by_user_id" => lib::current_user()["id"],
+                ]
+            );
+
         }
         catch (Throwable $t)
         {
@@ -70,36 +80,35 @@
         ?>
         <h1>EDIT COMMUNITY</h1>
         <form method="post">
-        <?php if ($UPDATE_ERROR ?? false) { ?>
-            <div style="color: crimson">
-                <?= $UPDATE_ERROR ?>
-                <pre><?= $TRACE ?></pre>
-            </div>
-        <?php } ?>
-        <input type="hidden" name="id" value="<?= htmlspecialchars($community["id"]) ?>">
-        <input type="hidden" name="action" value="edit_community">
-        <input type="text" name="tenant_name" value="<?= htmlspecialchars($community["tenant_name"]) ?>"
-               placeholder="Tenant Name">
-        <input type="text" name="tenant_slug" value="<?= htmlspecialchars($community["tenant_slug"]) ?>"
-               placeholder="Tenant Slug">
-        <input type="text" name="skool_id" value="<?= htmlspecialchars($community["skool_id"]) ?>"
-               placeholder="Skool ID">
-        <input type="text" name="primary_community" value="<?= htmlspecialchars($community["primary_community"]) ?>"
-               placeholder="Primary Community">
-        <input type="text" name="created_by_user_id"
-               value="<?= htmlspecialchars($community["created_by_user_id"]) ?>" placeholder="Created By User ID">
-        <input type="text" name="created_by_user_name"
-               value="<?= htmlspecialchars($community["created_by_user_name"]) ?>"
-               placeholder="Created By User Name">
-        <button type="submit">Save Changes</button>
+            <?php if ($UPDATE_ERROR ?? false) { ?>
+                <div style="color: crimson">
+                    <?= $UPDATE_ERROR ?>
+                    <pre><?= $TRACE ?></pre>
+                </div>
+            <?php } ?>
+            <input type="hidden" name="id" value="<?= htmlspecialchars($community["id"]) ?>">
+            <input type="hidden" name="action" value="edit_community">
+            <input type="text" name="tenant_name" value="<?= htmlspecialchars($community["tenant_name"]) ?>"
+                   placeholder="Tenant Name">
+            <input type="text" name="tenant_slug" value="<?= htmlspecialchars($community["tenant_slug"]) ?>"
+                   placeholder="Tenant Slug">
+            <input type="text" name="skool_id" value="<?= htmlspecialchars($community["skool_id"]) ?>"
+                   placeholder="Skool ID">
+            <input type="text" name="primary_community" value="<?= htmlspecialchars($community["primary_community"]) ?>"
+                   placeholder="Primary Community">
+            <input type="text" name="created_by_user_id"
+                   value="<?= htmlspecialchars($community["created_by_user_id"]) ?>" placeholder="Created By User ID">
+            <input type="text" name="created_by_user_name"
+                   value="<?= htmlspecialchars($community["created_by_user_name"]) ?>"
+                   placeholder="Created By User Name">
+            <button type="submit">Save Changes</button>
 
         </form>
         <pre><?= print_r($community, true) ?></pre>
         <?php
 
     }
-    catch
-        (Throwable $t)
+    catch (Throwable $t)
     {
         admin_lib::main_admin_nav();
         ?>

@@ -94,6 +94,26 @@
             return $stmt->execute($params);
         }
 
+        /**
+         * @throws Exception
+         */
+        static function delete(string $table_name, array $where): bool
+        {
+            $where_clauses = [];
+            foreach (array_keys($where) as $key)
+            {
+                $where_clauses[] = "`$key` = :$key";
+            }
+            $sql = "DELETE FROM `$table_name` WHERE " . implode(" AND ", $where_clauses);
+            $stmt = lib::db()->prepare($sql);
+            $params = [];
+            foreach ($where as $key => $value)
+            {
+                $params[":$key"] = $value;
+            }
+            return $stmt->execute($params);
+        }
+
         static function is_logged_in(): bool
         {
             return isset($_SESSION['user_id']);
@@ -173,6 +193,11 @@
         static function string_column_sql($table_name, $name): string
         {
             return "ALTER TABLE $table_name ADD `$name` TEXT DEFAULT ''";
+        }
+
+        static function long_string_column_sql($table_name, $name): string
+        {
+            return "ALTER TABLE $table_name ADD `$name` LONGTEXT DEFAULT ''";
         }
 
         static function real_column_sql($table_name, $name): string
@@ -318,7 +343,7 @@
             string $event_type,
             string $priority,
             string $event_description,
-            string $event_data = "",
+            array $event_data = [],
             string $trace = "",
             int $user_id = 0,
             int $community_id = 0
@@ -335,10 +360,11 @@
                     "event_type" => $event_type,
                     "priority" => $priority,
                     "event_description" => $event_description,
-                    "event_data" => $event_data,
+                    "event_data" => json_encode($event_data),
                     "trace" => $trace,
                     "user_id" => $user_id,
                     "community_id" => $community_id,
+                    "created_at" => time(),
                 ]
             );
         }

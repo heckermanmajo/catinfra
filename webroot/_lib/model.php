@@ -79,5 +79,4 @@
     $m[] = lib::string_column_sql($SM, "trace");
     $m[] = lib::integer_column_sql($ARD, "success");
 
-
     return $m;

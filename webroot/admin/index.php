@@ -17,22 +17,26 @@
         exit();
     }
 
-
-    if (lib::sdefault("action") == "create_community")
+    if (lib::sdefault("action") === "logout")
     {
-        if (!lib::current_user_is_admin())
-        {
-            ob_clean();
-            header("Location: /user");
-            exit();
-        }
+        session_destroy();
+        ob_clean();
+        header("Location: /");
+        exit();
     }
+
+
 
     lib::header_html();
 
     admin_lib::main_admin_nav();
 ?>
     <hr>
+
+    <form method="post">
+        <input type="hidden" name="action" value="logout">
+        <input type="submit" value="Logout">
+    </form>
 
     <h4> ADMIN VIEW </h4>
 

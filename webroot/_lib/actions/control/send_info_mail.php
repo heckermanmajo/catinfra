@@ -1,6 +1,6 @@
 <?php
 
-    function send_info_mail(): void
+    function send_simple_mail(int $community_id): void
     {
 
     }

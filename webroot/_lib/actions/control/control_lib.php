@@ -98,7 +98,7 @@
                                 </table>
                                 <div style="height:24px; line-height:24px;">&#8202;</div>
                                 <div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#9ca3af;">
-                                    © <?= htmlspecialchars($year, ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?> Your Company
+                                    © <?= htmlspecialchars($year, ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?> https://cat-knows.com
                                 </div>
                             </td>
                         </tr>

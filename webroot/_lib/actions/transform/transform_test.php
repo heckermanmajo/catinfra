@@ -15,8 +15,10 @@
 
             $data = lib::select(
                 "SELECT * FROM `RawDataPage` WHERE community_id = :community_id and type = :about",
-                [":community_id" => $community_id]
-            );
+                [":community_id" => $community_id, ":about" => "about_page"]
+            )[0]["content"];
+
+            $data = json_decode($data, true);
 
             # get some data from it and return it
             $about = $data["pageProps"]["currentGroup"]["metadata"]["lpDescription"];

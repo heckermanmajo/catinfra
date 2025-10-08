@@ -1,7 +1,7 @@
 <?php
 
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/control/transform_lib.php";
+    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/transform/transform_lib.php";
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/transform/transform_test.php";
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/control/control_lib.php";
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/control/send_info_mail.php";
@@ -34,7 +34,7 @@
             $users_of_this_community = lib::select(
                 "SELECT u.* FROM User u
                 JOIN UserCommunityRelation ucr ON u.id = ucr.user_id
-                WHERE ucr.community_id = :community_id AND u.is_admin = 1",
+                WHERE ucr.community_id = :community_id",
                 ["community_id" => $community_id]
             );
 

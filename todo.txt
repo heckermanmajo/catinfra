@@ -1,18 +1,2 @@
 
-- add event logs to all relavent actions
-- display event logs (global + community based)
-- search/filter event logs
-
-- trigger fetch actions
-- display fetched data
-
-- trigger simple analysis action
-
-- send email action
-
-- analysuis actions: wie specidänemark kaufe
-däce<hert man das mapping: 1:1 oder über alle oder über gewissen zeitraum?
-
-
-- email login token
-- all data in one place
+- display errors and logs in a way simpler and better way

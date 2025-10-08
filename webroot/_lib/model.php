@@ -56,7 +56,7 @@
     $m[] = lib::string_column_sql($ARD, "content");
     $m[] = lib::string_column_sql($ARD, "logs");
     $m[] = lib::string_column_sql($ARD, "trace");
-    $m[] = lib::string_column_sql($RDP, "community_id");
+    $m[] = lib::string_column_sql($ARD, "community_id");
     $m[] = lib::integer_column_sql($ARD, "success");
 
     $EL = "EventLog";
@@ -78,6 +78,6 @@
     $m[] = lib::string_column_sql($SM, "body");
     $m[] = lib::string_column_sql($SM, "warnings");
     $m[] = lib::string_column_sql($SM, "trace");
-    $m[] = lib::integer_column_sql($ARD, "success");
+    $m[] = lib::integer_column_sql($SM, "success");
 
     return $m;

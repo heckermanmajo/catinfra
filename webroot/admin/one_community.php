@@ -117,7 +117,7 @@
             ?>
             <article>
                 <pre>
-                    <?= json_encode($eventlog, JSON_PRETTY_PRINT) ?>
+                    <?= htmlspecialchars(json_encode($eventlog, JSON_PRETTY_PRINT)) ?>
                 </pre>
             </article>
             <?php

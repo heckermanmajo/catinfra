@@ -8,6 +8,8 @@
     $json = json_decode(file_get_contents('php://input'), true);
     if ($json) $_REQUEST = array_merge($_REQUEST, $json);
 
+    ob_start();
+
     final class lib
     {
 
@@ -56,18 +58,41 @@
         {
             try
             {
+                $data['created_at'] = time();
+                # if the value oif any field is an array replace it with a json string
+                foreach ($data as $key => $value)
+                {
+                    if (is_array($value))
+                    {
+                        $data[$key] = json_encode($value);
+                    }
+                }
                 $keys = array_keys($data);
                 $placeholders = array_map(fn($k) => ":$k", $keys);
                 $sql = "INSERT INTO `$table_name` (" . implode(", ", $keys) . ") VALUES (" . implode(", ", $placeholders) . ")";
                 #print_r($sql);
                 $stmt = lib::db()->prepare($sql);
                 $params = [];
-                $data['created_at'] = time();
                 foreach ($data as $key => $value)
                 {
                     $params[":$key"] = $value;
                 }
-                $stmt->execute($params);
+                try
+                {
+                    $stmt->execute($params);
+                }
+                catch (Throwable $e)
+                {
+                    echo "<pre>";
+                    echo $e->getMessage();
+                    echo "<br>";
+                    echo $e->getTraceAsString();
+                    echo "<br>";
+                    echo $sql;
+                    echo "<br>";
+                    echo json_encode($params);
+                    echo "</pre>";
+                }
                 $last_inserted_id = (int)lib::db()->lastInsertId();
                 if ($create_event_log)
                 {
@@ -117,6 +142,14 @@
         {
             try
             {
+                $data['updated_at'] = time();
+                foreach ($data as $key => $value)
+                {
+                    if (is_array($value))
+                    {
+                        $data[$key] = json_encode($value);
+                    }
+                }
                 if (!isset($data['id']))
                 {
                     throw new InvalidArgumentException("Data must contain 'id' key for update");
@@ -124,7 +157,6 @@
                 $id = $data['id'];
                 unset($data['id']);
                 $set_clauses = [];
-                $data['updated_at'] = time();
                 foreach (array_keys($data) as $key)
                 {
                     $set_clauses[] = "`$key` = :$key";
@@ -169,7 +201,7 @@
                             "event_data" => json_encode($data),
                             "trace" => $e->getMessage() . "\n" . $e->getTraceAsString(),
                             "user_id" => lib::current_user()["id"],
-                            "community_id"  => $data["community_id"] ?? ($table_name == "Community" ? $id : 0),
+                            "community_id" => $data["community_id"] ?? ($table_name == "Community" ? $id : 0),
                             "created_at" => time(),
                         ],
                         create_event_log: false

@@ -49,7 +49,7 @@
         ?>
         <article>
             <h4> <?= $log["event_type"] ?> </h4>
-            <pre><?= json_encode(json_decode($log["event_data"]), JSON_PRETTY_PRINT) ?></pre>
+            <pre><?= htmlspecialchars(json_encode(json_decode($log["event_data"]), JSON_PRETTY_PRINT))?></pre>
         </article>
         <?php
     }

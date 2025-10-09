@@ -1,6 +1,7 @@
 <?php
 
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
+    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/view_lib.php";
     require_once "./admin_lib.php";
 
     if (!lib::is_logged_in())
@@ -44,14 +45,18 @@
     </form>
 <?php
 
+    # sort logs
+    usort($logs, function($a, $b) {
+        return strtotime($b["created_at"]) - strtotime($a["created_at"]);
+    });
+
+    #reverse order
+    $logs = array_reverse($logs);
+
+
     foreach ($logs as $log)
     {
-        ?>
-        <article>
-            <h4> <?= $log["event_type"] ?> </h4>
-            <pre><?= htmlspecialchars(json_encode(json_decode($log["event_data"]), JSON_PRETTY_PRINT))?></pre>
-        </article>
-        <?php
+        view_lib::render_event_log($log);
     }
 
 ?>

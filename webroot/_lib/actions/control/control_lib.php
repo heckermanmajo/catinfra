@@ -264,6 +264,25 @@
                         "created_at" => time(),
                     ]
                 );
+                lib::insert(
+                    "EventLog",
+                    [
+                        "event_type" => "Sending Email Failed",
+                        "priority" => "critical",
+                        "event_description" => ob_get_clean(),
+                        "user_id" => lib::current_user()["id"],
+                        "community_id" => $community_id,
+                        "event_data" => [
+                            "to" => $to,
+                            "subject" => $subject,
+                            "body" => $body,
+                            "warnings" => $warnings,
+                        ],
+                        "trace" => "",
+                        "created_at" => time(),
+                    ],
+                    create_event_log: false
+                );
                 throw $e;
             }
         }

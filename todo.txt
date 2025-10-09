@@ -1,2 +1,3 @@
 
 - display errors and logs in a way simpler and better way
+- add admin mails on problems ->

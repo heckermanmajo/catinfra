@@ -81,6 +81,33 @@
         }
     }
 
+    if (lib::sdefault("action") === "delete_user")
+    {
+        try
+        {
+            $id = lib::i("id");
+
+            $user = lib::select(
+                "SELECT * FROM User WHERE id = :id",
+                ["id" => $id]
+            )[0] ?? throw new Exception("User not found");
+
+            lib::delete(
+                "User",
+                ["id" => $id]
+            );
+
+            ob_clean();
+            header("Location: /admin/users.php");
+            exit();
+        }
+        catch (Throwable $t)
+        {
+            $DELETE_USER_ERROR = $t->getMessage();
+            $TRACE_DELETE = $t->getTraceAsString();
+        }
+    }
+
     lib::header_html(css: "
         <style>
             label{
@@ -114,6 +141,12 @@
                     <div style="color: crimson">
                         <?= $UPDATE_USER_ERROR ?>
                         <pre><?= $TRACE ?></pre>
+                    </div>
+                <?php } ?>
+                <?php if ($DELETE_USER_ERROR ?? false) { ?>
+                    <div style="color: crimson">
+                        <?= $DELETE_USER_ERROR ?>
+                        <pre><?= $TRACE_DELETE ?></pre>
                     </div>
                 <?php } ?>
                 <input type="hidden" name="action" value="update_user">
@@ -191,6 +224,12 @@
 
                 <button> Update User</button>
 
+            </form>
+
+            <form method="post" onsubmit="return confirm('Are you sure you want to delete user <?= htmlspecialchars($user['username']) ?>? This action cannot be undone.');" style="margin-top: 10px;">
+                <input type="hidden" name="action" value="delete_user">
+                <input type="hidden" name="id" value="<?= $user["id"] ?>">
+                <button type="submit" style="background-color: crimson; color: white;"> Delete User</button>
             </form>
 
             <hr>

@@ -99,7 +99,7 @@
                 "EventLog",
                 [
                     "event_type" => "FAILED: Called Send Test Email",
-                    "priority" => "info",
+                    "priority" => "critical",
                     "event_description" => ob_get_clean(),
                     "user_id" => lib::current_user()["id"],
                     "community_id" => $community_id,

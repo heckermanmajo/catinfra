@@ -118,6 +118,14 @@
         protected ?string $logging_space = null;
 
         /**
+         * Check if the application is running on localhost
+         */
+        static function is_localhost(): bool
+        {
+            return !str_contains($_SERVER["DOCUMENT_ROOT"], 'w016728f');
+        }
+
+        /**
          * This handles errors, where no connection to the database is possible or other errors, f.e.
          * if we cannot send an email to the admins, etc.
          */

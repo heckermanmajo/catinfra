@@ -8,7 +8,13 @@
     {
         public string $logs = "";
 
-        function __construct(private array|UserError|\Throwable $data) {}
+
+        function __construct(private(set) array|UserError|\Throwable $data) {}
+
+        function has_error(): bool
+        {
+            return $this->data instanceof UserError || $this->data instanceof \Throwable;
+        }
 
         function is_action(string $action, array $other_fields = [])
         {

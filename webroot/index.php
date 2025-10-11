@@ -5,7 +5,7 @@
     use _lib\requests\user\LoginUserRequest;
     use _lib\views\HtmlPage;
 
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
+    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/init.php";
 
     $in = RequestInput::get_last_input();
     $request_output = match ($in->action)

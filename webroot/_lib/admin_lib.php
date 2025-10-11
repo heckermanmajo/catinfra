@@ -28,13 +28,15 @@
             $esc = fn($v) => htmlspecialchars((string)$v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
             $escAttr = $esc;
 
-            $fmtKeyForPhp = function($key): string {
+            $fmtKeyForPhp = function ($key): string
+            {
                 if (is_int($key)) return '[' . $key . ']';
                 $k = addcslashes((string)$key, "\\\"");
                 return '["' . $k . '"]';
             };
 
-            $buildPhpPath = function(array $pathParts, string $rootVar) use ($fmtKeyForPhp): string {
+            $buildPhpPath = function (array $pathParts, string $rootVar) use ($fmtKeyForPhp): string
+            {
                 $suffix = '';
                 foreach ($pathParts as $part) $suffix .= $fmtKeyForPhp($part);
                 return $rootVar . $suffix;

@@ -1,3 +1,12 @@
 
 - display errors and logs in a way simpler and better way
-- add admin mails on problems ->
+- mark event log as seen
+
+- add admin mails on problems
+- add dataclasses in simple forms, static function based
+- all libs in one file -> all includes in one file
+- render stuff -> also the data-classes
+
+- add the correct data and download more stuff: write more fetcher -> the ones we need for data
+
+- readme.md

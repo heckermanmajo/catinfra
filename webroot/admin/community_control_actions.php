@@ -1,11 +1,6 @@
 <?php
 
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/transform/transform_lib.php";
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/transform/transform_test.php";
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/control/control_lib.php";
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/control/send_info_mail.php";
-    require_once "./admin_lib.php";
 
     if (!lib::is_logged_in())
     {

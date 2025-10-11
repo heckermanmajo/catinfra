@@ -317,6 +317,11 @@
             return "ALTER TABLE $table_name ADD `$name` LONGTEXT DEFAULT ''";
         }
 
+        static function blob_column_sql($table_name, $name): string
+        {
+            return "ALTER TABLE $table_name ADD `$name` BLOB";
+        }
+
         static function real_column_sql($table_name, $name): string
         {
             return "ALTER TABLE $table_name ADD `$name` REAL DEFAULT ''";
@@ -487,3 +492,17 @@
         }
 
     }
+
+    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/admin_lib.php";
+    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/control_lib.php";
+    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/fetch_lib.php";
+    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/transform_lib.php";
+    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/view_lib.php";
+
+    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/transform/transform_test.php";
+
+    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/fetch/fetch_about_page.php";
+    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/fetch/fetch_admin_metrics.php";
+
+    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/control/send_info_mail.php";
+

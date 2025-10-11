@@ -1,10 +1,6 @@
 <?php
 
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
-    require_once "./admin_lib.php";
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/fetch_lib.php";
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/fetch/fetch_admin_metrics.php";
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/actions/fetch/fetch_about_page.php";
 
     if (!lib::is_logged_in())
     {

@@ -1,7 +1,7 @@
 <?php
 
+
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
-    require_once "./admin_lib.php";
 
     if (!lib::is_logged_in())
     {

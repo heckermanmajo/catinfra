@@ -13,6 +13,7 @@
         public string $trace;
         public string $action_name;
         public int $user_id;
+        protected(set) string $executed_during_request = "";
 
         function __construct(public bool $success) {}
 
@@ -28,6 +29,7 @@
            $db_action_result_data->trace = $this->trace;
            $db_action_result_data->buffer = $this->buffer;
            $db_action_result_data->data = json_encode($this, JSON_THROW_ON_ERROR);
+           $db_action_result_data->executed_during_request = App::$current_request;
            $db_action_result_data->save();
         }
 
@@ -43,6 +45,7 @@
             $specific_result->message = $db_result_data->message;
             $specific_result->trace = $db_result_data->trace;
             $specific_result->buffer = $db_result_data->buffer;
+            $specific_result->executed_during_request = $db_result_data->executed_during_request;
             $data = json_decode($db_result_data->data, true, 512, JSON_THROW_ON_ERROR);
             foreach ($data as $key => $value)
             {
@@ -69,6 +72,8 @@
             echo "Started at: " . date('Y-m-d H:i:s', $this->started_at) . "\n";
             echo "Ended at: " . date('Y-m-d H:i:s', $this->ended_at) . "\n";
             echo "Buffer: " . $this->buffer . "\n";
+            echo "Executed during request: " . $this->executed_during_request . "\n";
+            echo "Data: " . json_encode($this, JSON_THROW_ON_ERROR) . "\n";
         }
 
         function throw_if_not_successful(): void

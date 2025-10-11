@@ -10,6 +10,8 @@
         function execute(RequestInput $input): RequestOutput
         {
 
+            App::$current_request = static::class;
+
             ob_start();
 
             try
@@ -19,14 +21,21 @@
 
             catch (UserError $e)
             {
-                # todo: simple logging ...
                 $output = new RequestOutput($e);
             }
 
             catch (\Throwable $t)
             {
-                # todo: extra logging ...
                 $output = new RequestOutput($t);
+            }
+
+            try
+            {
+                $output->to_db();
+            }
+            catch (\Throwable $t)
+            {
+                # todo
             }
 
             $output->logs = ob_get_clean();

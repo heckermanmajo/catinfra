@@ -8,6 +8,8 @@
     class App
     {
 
+        static string $current_request = "";
+
         static function get_instance(): App
         {
             static $instance = null;

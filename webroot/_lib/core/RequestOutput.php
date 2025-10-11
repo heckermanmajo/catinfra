@@ -2,6 +2,7 @@
 
     namespace _lib\core;
 
+    use _lib\model\RequestData;
     use JsonException;
 
     final class RequestOutput
@@ -9,7 +10,9 @@
         public string $logs = "";
 
 
-        function __construct(private(set) array|UserError|\Throwable $data) {}
+        function __construct(
+            private(set) array|UserError|\Throwable $data
+        ) {}
 
         function has_error(): bool
         {
@@ -65,7 +68,7 @@
             }
         }
 
-        function return_json_and_exit()
+        function get_as_json()
         {
             try
             {
@@ -122,6 +125,18 @@
                 echo "JSON error: " . $exception->getMessage();
 
             }
+        }
+
+        function to_db(): void {
+            $request_data = new RequestData();
+            $request_data->request_data_json = json_encode($this->data);
+            $request_data->logs = $this->logs;
+            $request_data->user_error = $this->data instanceof UserError ? 1 : 0;
+            $request_data->system_error = $this->data instanceof \Throwable ? 1 : 0;
+            $request_data->error_message = $this->data instanceof \Throwable ? $this->data->getMessage() : "";
+            $request_data->trace = $this->data instanceof \Throwable ? $this->data->getTraceAsString() : "";
+            $request_data->json_response = json_encode($this->data);
+            $request_data->save();
         }
 
     }

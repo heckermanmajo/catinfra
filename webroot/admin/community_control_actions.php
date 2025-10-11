@@ -1,21 +1,11 @@
 <?php
 
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
+    use _lib\core\App;
+    use _lib\views\AdminNavView;
 
-    if (!lib::is_logged_in())
-    {
-        ob_clean();
-        header("Location: /");
-        exit();
-    }
+    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/init.php";
 
-    if (!lib::current_user_is_admin())
-    {
-        ob_clean();
-        header("Location: /user");
-        exit();
-    }
-
+    App::get_instance()->redirect_if_not_admin();
 
     if (lib::sdefault("action") === "send_test_email")
     {
@@ -58,7 +48,7 @@
 
                 echo "Sending test email to " . $user["email"] . "\n";
 
-                control_lib::sendFramedMail(
+                \_lib\utils\EmailSender::sendFramedMail(
                     $user["id"],
                     $community_id,
                     $user["email"],
@@ -143,7 +133,7 @@
     }
     catch (Throwable $t)
     {
-        admin_lib::main_admin_nav();
+        echo (new AdminNavView())->render();
         ?>
         <div style="color: crimson">
             <?= $t->getMessage() ?>

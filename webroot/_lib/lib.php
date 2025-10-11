@@ -493,9 +493,7 @@
 
     }
 
-    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/admin_lib.php";
     require $_SERVER["DOCUMENT_ROOT"] . "/_lib/control_lib.php";
-    require $_SERVER["DOCUMENT_ROOT"] . "/_lib/fetch_lib.php";
     require $_SERVER["DOCUMENT_ROOT"] . "/_lib/transform_lib.php";
     require $_SERVER["DOCUMENT_ROOT"] . "/_lib/view_lib.php";
 

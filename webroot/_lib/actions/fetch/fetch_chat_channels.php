@@ -1,5 +1,7 @@
 <?php
 
+    use _lib\utils\SkoolFetcher;
+
     /**
      * Fetches chat channels from Skool API
      *
@@ -46,5 +48,5 @@
         $query_string = http_build_query($params);
         $url = $query_string ? "{$base}?{$query_string}" : $base;
 
-        return fetch_lib::perform_request_to_skool($user, $community, $url, 'api');
+        return SkoolFetcher::perform_request_to_skool($user, $community, $url, 'api');
     }

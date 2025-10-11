@@ -1,14 +1,18 @@
 <?php
 
+    namespace _lib\utils;
 
-
+    use Exception;
     use Random\RandomException;
+    use Throwable;
 
-    class control_lib
+    class EmailSender
     {
         /**
          * Sends a framed email using PHP's mail().
          *
+         * @param int $user_id User ID for logging
+         * @param int $community_id Community ID for logging
          * @param string $to Recipient email (single address)
          * @param string $subject Subject line (will be sanitized)
          * @param string $htmlBody Your inner HTML content (no <html> or <body> needed)
@@ -91,7 +95,7 @@
 
                                             <div
                                                 style="border-top:1px solid #f3f4f6; margin-top:24px; padding-top:12px; font-size:12px; color:#6b7280;">
-                                                This message was sent automatically. If you didn’t expect it, you can
+                                                This message was sent automatically. If you didn't expect it, you can
                                                 safely
                                                 ignore this email.
                                             </div>
@@ -236,7 +240,7 @@
 
                 $result = mail($to, $subject, $body, $headersStr);
 
-                lib::insert(
+                \lib::insert(
                     "SentMail",
                     [
                         "user_id" => $user_id,
@@ -254,34 +258,34 @@
             }
             catch (Throwable $e)
             {
-                lib::insert(
+                \lib::insert(
                     "SentMail",
                     [
                         "user_id" => $user_id,
                         "community_id" => $community_id,
                         "subject" => $subject,
-                        "body" => $body,
-                        "warnings" => json_encode($warnings),
+                        "body" => $body ?? '',
+                        "warnings" => json_encode($warnings ?? []),
                         "trace" => $e->getMessage() . "\n" . $e->getTraceAsString(),
                         "success" => 0,
                         "created_at" => time(),
                     ]
                 );
-                lib::insert(
+                \lib::insert(
                     "EventLog",
                     [
                         "event_type" => "Sending Email Failed",
                         "priority" => "critical",
-                        "event_description" => ob_get_clean(),
-                        "user_id" => lib::current_user()["id"],
+                        "event_description" => $e->getMessage(),
+                        "user_id" => \lib::current_user()["id"] ?? 0,
                         "community_id" => $community_id,
                         "event_data" => [
                             "to" => $to,
                             "subject" => $subject,
-                            "body" => $body,
-                            "warnings" => $warnings,
+                            "body" => $body ?? '',
+                            "warnings" => $warnings ?? [],
                         ],
-                        "trace" => "",
+                        "trace" => $e->getTraceAsString(),
                         "created_at" => time(),
                     ],
                     create_event_log: false
@@ -290,4 +294,3 @@
             }
         }
     }
-

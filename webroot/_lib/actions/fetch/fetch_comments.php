@@ -1,5 +1,7 @@
 <?php
 
+    use _lib\utils\SkoolFetcher;
+
     /**
      * Fetches comments data from Skool Next.js API
      *
@@ -30,7 +32,7 @@
             // Map path to a page key for resolve_build_id; default to last segment or 'comments'
             $path_parts = array_filter(explode('/', trim($nextjs_path, '/')));
             $page_key = !empty($path_parts) ? end($path_parts) : 'comments';
-            $build_id = fetch_lib::reolve_nextjs_build_id($tenant_slug, $page_key);
+            $build_id = SkoolFetcher::resolve_nextjs_build_id($tenant_slug, $page_key);
         }
 
         $path = trim($nextjs_path, '/');
@@ -54,5 +56,5 @@
         $query_string = http_build_query($params);
         $url = $query_string ? "{$base}?{$query_string}" : $base;
 
-        return fetch_lib::perform_request_to_skool($user, $community, $url, 'nextjs');
+        return SkoolFetcher::perform_request_to_skool($user, $community, $url, 'nextjs');
     }

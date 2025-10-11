@@ -1,45 +1,24 @@
 <?php
 
+    use _lib\core\App;
+    use _lib\core\RequestInput;
+    use _lib\requests\user\LoginUserRequest;
+    use _lib\views\HtmlPage;
+
     require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
 
-    if (isset($_POST['action']) && $_POST['action'] == 'login')
+    $in = RequestInput::get_last_input();
+    $request_output = match ($in->action)
     {
+        "login" => new LoginUserRequest()->execute($in),
+        default => null,
+    };
 
-        $username = lib::s('username');
-        $password = lib::s('password');
 
-        try
-        {
-            $user = lib::select("SELECT * FROM User WHERE username = :username", ["username" => $username]);
-        }
-        catch (Exception $e)
-        {
-            $LOGIN_ERROR = "Database error: " . $e->getMessage();
-            goto END_LOGIN;
-        }
-
-        if (count($user) === 0)
-        {
-            $LOGIN_ERROR = "Invalid username or password";
-            goto END_LOGIN;
-        }
-
-        $user = $user[0];
-        if (!password_verify($password, $user['password_hash']))
-        {
-            $LOGIN_ERROR = "Invalid username or password";
-            goto END_LOGIN;
-        }
-
-        $_SESSION['user_id'] = $user['id'];
-
-        END_LOGIN:
-    }
-
-    if (lib::is_logged_in())
+    if (App::get_instance()->somebody_is_logged_in())
     {
         ob_clean();
-        if (lib::current_user_is_admin())
+        if (App::get_instance()->current_user_is_admin())
         {
             header("Location: /admin");
         }
@@ -50,11 +29,16 @@
         exit();
     }
 
-    lib::header_html();
-
 ?>
-    <h4> Cat Brain stuff </h4>
+
+<?php HtmlPage::header_html(); ?>
+
+<h4> Cat Brain stuff </h4>
+
+<article>
     <form method="post">
+
+        <?php $request_output?->put_error_card("login"); ?>
 
         <input type="hidden" name="action" value="login">
 
@@ -70,6 +54,6 @@
 
         <input type="submit" value="Submit">
     </form>
-<?php
+</article>
 
-    lib::footer_html();
+<?php HtmlPage::footer_html() ?>

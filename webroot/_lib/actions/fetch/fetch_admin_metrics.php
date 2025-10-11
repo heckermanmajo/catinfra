@@ -1,5 +1,6 @@
 <?php
 
+    use _lib\utils\SkoolFetcher;
 
     /**
      * Fetches admin metrics from Skool API
@@ -29,5 +30,5 @@
             urlencode($amt)
         );
 
-        return fetch_lib::perform_request_to_skool($user, $community, $url, 'api');
+        return SkoolFetcher::perform_request_to_skool($user, $community, $url, 'api');
     }

@@ -1,5 +1,7 @@
 <?php
 
+    use _lib\utils\SkoolFetcher;
+
     /**
      * Fetches billing dashboard data from Skool API
      *
@@ -25,5 +27,5 @@
             urlencode($vs)
         );
 
-        return fetch_lib::perform_request_to_skool($user, $community, $url, 'api');
+        return SkoolFetcher::perform_request_to_skool($user, $community, $url, 'api');
     }

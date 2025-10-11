@@ -1,5 +1,7 @@
 <?php
 
+    use _lib\utils\SkoolFetcher;
+
     /**
      * Fetches members data from Skool Next.js API
      *
@@ -41,7 +43,7 @@
 
         // Resolve Next.js build ID if not provided
         if (!$build_id) {
-            $build_id = fetch_lib::reolve_nextjs_build_id($tenant_slug, 'members');
+            $build_id = SkoolFetcher::resolve_nextjs_build_id($tenant_slug, 'members');
         }
 
         $params = [
@@ -85,5 +87,5 @@
             $query
         );
 
-        return fetch_lib::perform_request_to_skool($user, $community, $url, 'nextjs');
+        return SkoolFetcher::perform_request_to_skool($user, $community, $url, 'nextjs');
     }

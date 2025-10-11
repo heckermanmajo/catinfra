@@ -1,5 +1,7 @@
 <?php
 
+    use _lib\utils\SkoolFetcher;
+
     /**
      * Fetches about page data from Skool Next.js API
      *
@@ -18,7 +20,7 @@
             ?? throw new ValueError("Missing tenant_slug in community data");
 
         // Resolve Next.js build ID for the about page
-        $build_id = fetch_lib::reolve_nextjs_build_id($tenant_slug, 'about');
+        $build_id = SkoolFetcher::resolve_nextjs_build_id($tenant_slug, 'about');
 
         // Build the Next.js data URL
         $url = sprintf(
@@ -28,5 +30,5 @@
             urlencode($tenant_slug)
         );
 
-        return fetch_lib::perform_request_to_skool($user, $community, $url, 'nextjs');
+        return SkoolFetcher::perform_request_to_skool($user, $community, $url, 'nextjs');
     }

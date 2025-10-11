@@ -1,20 +1,12 @@
 <?php
 
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
+    use _lib\core\App;
+    use _lib\utils\SkoolFetcher;
+    use _lib\views\AdminNavView;
 
-    if (!lib::is_logged_in())
-    {
-        ob_clean();
-        header("Location: /");
-        exit();
-    }
+    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/init.php";
 
-    if (!lib::current_user_is_admin())
-    {
-        ob_clean();
-        header("Location: /user");
-        exit();
-    }
+    App::get_instance()->redirect_if_not_admin();
 
 
     switch (lib::sdefault("action"))
@@ -52,7 +44,7 @@
                 $logs = ob_get_clean();
 
                 // Insert into RawDataPage
-                fetch_lib::insert_raw_page_data(
+                SkoolFetcher::insert_raw_page_data(
                     "about_page",
                     $community["skool_id"] ?? "",
                     json_encode($data ?? ["error" => $message]),
@@ -104,7 +96,7 @@
                 $logs = ob_get_clean();
 
                 // Insert into RawDataPage
-                fetch_lib::insert_raw_page_data(
+                SkoolFetcher::insert_raw_page_data(
                     "admin_metrics",
                     $community["skool_id"] ?? "",
                     json_encode($data ?? ["error" => $message]),
@@ -179,7 +171,7 @@
     }
     catch (Throwable $t)
     {
-        admin_lib::main_admin_nav();
+        echo (new AdminNavView())->render();
         ?>
         <div style="color: crimson">
             <?= $t->getMessage() ?>

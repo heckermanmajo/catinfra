@@ -1,6 +1,15 @@
 <?php
 
-    final class fetch_lib
+    namespace _lib\utils;
+
+    use Exception;
+    use JsonException;
+    use RuntimeException;
+
+    /**
+     * This class provides functions to make fetching skool data easier.
+     */
+    class SkoolFetcher
     {
 
         public static array $logs = [];
@@ -19,19 +28,19 @@
             }
         }
 
-        # expects json as return fields...
-
         /**
          * @throws JsonException
          */
         static function perform_request_to_skool(
-            array  $user,
-            array  $community,
-            string $url,
-            string $kind = 'api'
+            array   $user,
+            array   $community,
+            string  $url,
+            string  $kind = 'api',
+            string  $method = 'GET',
+            ?array  $payload = null
         ): array
         {
-            self::log("Send request to URL: {$url}");
+            self::log("Send request to URL: {$url} (Method: {$method})");
 
             $get_headers = function (string $kind) use ($user, $community)
             {
@@ -128,7 +137,9 @@
             print_r($cookie_string);
             print_r($url);
             echo "</pre>";
-            #exit;
+
+            // Normalize HTTP method
+            $method = strtoupper($method);
 
             # perform request
             $ch = curl_init();
@@ -139,6 +150,14 @@
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $get_headers($kind));
             curl_setopt($ch, CURLOPT_COOKIE, implode("; ", $cookie_string));
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+
+            // Add payload for non-GET methods
+            if ($method !== 'GET' && $payload !== null) {
+                $json_data = json_encode($payload, JSON_THROW_ON_ERROR);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+            }
+
             $html = curl_exec($ch);
             $errno = curl_errno($ch);
             $err = curl_error($ch);
@@ -150,18 +169,33 @@
                 throw new RuntimeException("[performRequestToSkool] cURL error {$errno}: {$err}");
             }
 
-            if ($code !== 200 || !$html)
+            // Handle 204 No Content
+            if ($code === 204) {
+                return ['status' => 204, 'ok' => true];
+            }
+
+            if ($code < 200 || $code >= 300)
             {
-                throw new RuntimeException("[performRequestToSkool] Non-200 status: {$code} for {$url}");
+                throw new RuntimeException("[performRequestToSkool] HTTP {$code} for {$url}");
+            }
+
+            // Handle empty response
+            if (!$html) {
+                return ['status' => $code, 'ok' => true];
             }
 
             self::log($html);
 
-            return json_decode($html, true, 512, JSON_THROW_ON_ERROR);
+            // Try to parse JSON, if fails return status
+            try {
+                return json_decode($html, true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                return ['status' => $code, 'ok' => true];
+            }
 
         }
 
-        static function reolve_nextjs_build_id(string $tenant, string $page = 'members'): ?string
+        static function resolve_nextjs_build_id(string $tenant, string $page = 'members'): ?string
         {
             if (str_starts_with($page, '@'))
             {
@@ -242,7 +276,7 @@
             $success
         ): int
         {
-            return lib::insert("RawDataPage", [
+            return \lib::insert("RawDataPage", [
                 "page_type" => $page_type,
                 "related_skoolid" => $related_skoolid,
                 "content" => $content,

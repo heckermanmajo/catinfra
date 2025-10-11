@@ -1,21 +1,11 @@
 <?php
 
+    use _lib\core\App;
+    use _lib\views\AdminNavView;
 
-    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/lib.php";
+    require_once $_SERVER["DOCUMENT_ROOT"] . "/_lib/init.php";
 
-    if (!lib::is_logged_in())
-    {
-        ob_clean();
-        header("Location: /");
-        exit();
-    }
-
-    if (!lib::current_user_is_admin())
-    {
-        ob_clean();
-        header("Location: /user");
-        exit();
-    }
+    App::get_instance()->redirect_if_not_admin();
 
 
     try
@@ -43,7 +33,7 @@
     }
     catch (Throwable $t)
     {
-        admin_lib::main_admin_nav();
+        echo (new AdminNavView())->render();
         ?>
         <div style="color: crimson">
             <?= $t->getMessage() ?>

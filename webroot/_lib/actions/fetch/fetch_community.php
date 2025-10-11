@@ -1,5 +1,7 @@
 <?php
 
+    use _lib\utils\SkoolFetcher;
+
     /**
      * Fetches community page data from Skool Next.js API
      *
@@ -33,7 +35,7 @@
             } else {
                 $page_key = 'index';
             }
-            $build_id = fetch_lib::reolve_nextjs_build_id($tenant_slug, $page_key);
+            $build_id = SkoolFetcher::resolve_nextjs_build_id($tenant_slug, $page_key);
         }
 
         $q = $query ?? [];
@@ -57,5 +59,5 @@
             $url .= "?{$query_string}";
         }
 
-        return fetch_lib::perform_request_to_skool($user, $community, $url, 'nextjs');
+        return SkoolFetcher::perform_request_to_skool($user, $community, $url, 'nextjs');
     }

@@ -1,28 +1,15 @@
 <?php
 
-    final class admin_lib
+    namespace _lib\views;
+
+    class CollapsibleListView
     {
-        private function __construct() {}
+        function __construct(
+            private array $data,
+            private string $rootVar = '$data'
+        ) {}
 
-        public static function main_admin_nav(): void
-        {
-            ?>
-            <header>
-                <nav>
-                    <a href="/admin/"> Start Page </a>
-                    &nbsp; | &nbsp;
-                    <a href="/admin/users.php"> Users </a>
-                    &nbsp; | &nbsp;
-                    <a href="/admin/communities.php"> Communities </a>
-                    &nbsp; | &nbsp;
-                    <a href="/admin/eventlogs.php"> Eventlogs </a>
-                    &nbsp; | &nbsp;
-                </nav>
-            </header>
-            <?php
-        }
-
-        static function render_collapsible_list(array $data, string $rootVar = '$data'): string
+        function render(): string
         {
             $isAssoc = fn($arr) => array_keys($arr) !== range(0, count($arr) - 1);
             $esc = fn($v) => htmlspecialchars((string)$v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -42,7 +29,7 @@
                 return $rootVar . $suffix;
             };
 
-            $render = function ($node, array $pathParts = []) use (&$render, $isAssoc, $esc, $escAttr, $buildPhpPath, $rootVar): string
+            $render = function ($node, array $pathParts = []) use (&$render, $isAssoc, $esc, $escAttr, $buildPhpPath): string
             {
                 $listTag = $isAssoc($node) ? 'ul' : 'ol';
                 $html = "<{$listTag} class=\"tree-list\">\n";
@@ -51,7 +38,7 @@
                 {
                     $label = is_int($key) ? "#{$key}" : (string)$key;
                     $currentPath = array_merge($pathParts, [$key]);
-                    $phpPath = $buildPhpPath($currentPath, $rootVar);
+                    $phpPath = $buildPhpPath($currentPath, $this->rootVar);
                     $phpPathAttr = $escAttr($phpPath);
                     $depth = count($currentPath);
                     $collapsed = ($depth % 3) === 0;
@@ -110,7 +97,7 @@
 
             $uid = 'json-tree-' . bin2hex(random_bytes(4));
             $out = "<div class=\"json-tree\" id=\"{$uid}\" data-json-tree>\n";
-            $out .= $render($data);
+            $out .= $render($this->data);
             $out .= <<<HTML
 </div>
 <style>

@@ -1,5 +1,7 @@
 <?php
 
+    use _lib\utils\SkoolFetcher;
+
     /**
      * Fetches leaderboards data from Skool Next.js API
      *
@@ -23,7 +25,7 @@
 
         // Resolve Next.js build ID if not provided
         if (!$build_id) {
-            $build_id = fetch_lib::reolve_nextjs_build_id($tenant_slug, 'leaderboards');
+            $build_id = SkoolFetcher::resolve_nextjs_build_id($tenant_slug, 'leaderboards');
         }
 
         // Build the Next.js data URL
@@ -35,5 +37,5 @@
             $page
         );
 
-        return fetch_lib::perform_request_to_skool($user, $community, $url, 'nextjs');
+        return SkoolFetcher::perform_request_to_skool($user, $community, $url, 'nextjs');
     }
